@@ -2,15 +2,18 @@ import React, {useState} from "react";
 import Layout from "../components/Layout";
 import Router from "next/router";
 import {useSession} from "next-auth/react";
+import {Spinner} from "../components/Spinner";
 
 const Draft: React.FC = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [video, setVideo] = useState(null);
+    const [showSpinner, setShowSpinner] = useState(false);
 
     const {data: session, status} = useSession();
     let email = session?.user?.email;
     const submitData = async (e: React.SyntheticEvent) => {
+        setShowSpinner(true);
         e.preventDefault();
         const formData = new FormData();
         formData.append("inputFile", video);
@@ -23,8 +26,10 @@ const Draft: React.FC = () => {
                 method: "POST",
                 body: formData,
             });
+            // setShowSpinner(false);
             await Router.push("/drafts");
         } catch (error) {
+            setShowSpinner(false);
             console.error(error);
         }
     };
@@ -32,7 +37,8 @@ const Draft: React.FC = () => {
     return (
         <Layout>
             <div>
-                <form onSubmit={submitData}>
+                {showSpinner && <Spinner displayed={showSpinner}/>}
+                {!showSpinner && <form onSubmit={submitData}>
                     <h1>New Draft</h1>
                     <input
                         autoFocus
@@ -55,6 +61,7 @@ const Draft: React.FC = () => {
                         or Cancel
                     </a>
                 </form>
+                }
             </div>
             <style jsx>{`
               .page {

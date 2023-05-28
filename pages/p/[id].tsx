@@ -30,7 +30,6 @@ export const getServerSideProps: GetServerSideProps = async ({params}) => {
             },
         },
     });
-    //console.log(`inside /api/mongo/${post?.id}`);
     let videoUrl = null;
     try {
         await client.connect();
