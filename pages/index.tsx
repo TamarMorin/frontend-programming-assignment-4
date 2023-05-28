@@ -3,6 +3,16 @@ import type {GetServerSideProps} from "next";
 import Layout from "../components/Layout";
 import Post, {PostProps} from "../components/Post";
 import prisma from '../lib/prisma'
+import {MongoClient, ServerApiVersion} from "mongodb";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(process.env.MONGODB_URI, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
 
 export const getServerSideProps: GetServerSideProps = async () => {
     const feed = await prisma.post.findMany({
@@ -17,8 +27,22 @@ export const getServerSideProps: GetServerSideProps = async () => {
             },
         },
     });
+
+    // add hasVideo property to each post for bonus 2
+    for (let i = 0; i < feed.length; i++) {
+        await client.connect();
+        const database = client.db("blog");
+        const collection = database.collection("videos");
+        const result = await collection.findOne({
+            prisma_id: feed[i].id,
+        });
+        feed[i] = Object.assign({}, feed[i], {videoUrl: result?.url ?? null})
+    }
+
     return {
-        props: {feed},
+        props: {
+            feed
+        },
     };
 };
 
