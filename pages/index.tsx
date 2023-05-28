@@ -4,6 +4,8 @@ import Layout from "../components/Layout";
 import Post, {PostProps} from "../components/Post";
 import prisma from '../lib/prisma'
 import {MongoClient, ServerApiVersion} from "mongodb";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Pagination, {PaginationProps} from "../components/Pagination";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -14,8 +16,23 @@ const client = new MongoClient(process.env.MONGODB_URI, {
     }
 });
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const PAGE_SIZE: number = 10;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const numberOfPages = Math.ceil(await prisma.post.count({
+        where: {
+            published: true,
+        }
+    }) / PAGE_SIZE);
+
+    let pageNumber = Number(context.query?.pageNumber)
+    if (typeof pageNumber == undefined || typeof pageNumber == null || isNaN(pageNumber) || pageNumber < 0 || pageNumber >= numberOfPages) {
+        pageNumber = 0;
+    }
+
     const feed = await prisma.post.findMany({
+        skip: PAGE_SIZE * pageNumber,
+        take: PAGE_SIZE,
         where: {
             published: true,
         },
@@ -41,14 +58,19 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
     return {
         props: {
-            feed
+            feed,
+            numberOfPages,
+            pageNumber,
         },
     };
 };
 
 type Props = {
     feed: PostProps[];
+    numberOfPages: number;
+    pageNumber: number;
 };
+
 
 const Blog: React.FC<Props> = (props) => {
     return (
@@ -62,6 +84,7 @@ const Blog: React.FC<Props> = (props) => {
                         </div>
                     ))}
                 </main>
+                <Pagination key="pagination"  currentPage={props.pageNumber} totalPages={props.numberOfPages}/>
             </div>
             <style jsx>{`
               .post {
