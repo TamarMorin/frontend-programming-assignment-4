@@ -44,6 +44,7 @@ type Props = {
 };
 
 const Page: React.FC<Props> = (props) => {
-    return (<Blog key={`blog-page-${props.pageNumber}`} feed={props.feed} pageNumber={props.pageNumber} numberOfPages={props.numberOfPages}/>);
+    return (<Blog key={`blog-page-${props.pageNumber}`} feed={props.feed} pageNumber={props.pageNumber}
+                  numberOfPages={props.numberOfPages}/>);
 }
 export default Page;

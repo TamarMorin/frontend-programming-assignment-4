@@ -62,7 +62,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             });
             prismaId = result.id;
             console.log(`Created post: ${result.title} (ID: ${result.id})`);
-            responseJsonObj["prisma"]= result;
+            responseJsonObj["prisma"] = result;
 
         } else {
             res.status(401).write({message: 'Unauthorized'})
@@ -83,7 +83,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             console.log(response);
         } catch (error) {
             console.log("Error", error);
-            responseJsonObj["cloudinary"]= error;
+            responseJsonObj["cloudinary"] = error;
         }
 
         // upload to mongodb
@@ -99,7 +99,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             console.log(`result: ${result}`);
         } catch (error) {
             console.log("Error", error);
-            responseJsonObj["mongo"]= error;
+            responseJsonObj["mongo"] = error;
         }
 
         // send response

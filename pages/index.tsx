@@ -84,7 +84,7 @@ const Blog: React.FC<Props> = (props) => {
                         </div>
                     ))}
                 </main>
-                <Pagination key="pagination"  currentPage={props.pageNumber} totalPages={props.numberOfPages}/>
+                <Pagination key="pagination" currentPage={props.pageNumber} totalPages={props.numberOfPages}/>
             </div>
             <style jsx>{`
               .post {

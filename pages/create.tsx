@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import Layout from "../components/Layout";
 import Router from "next/router";
 import {useSession} from "next-auth/react";
@@ -9,6 +9,7 @@ const Draft: React.FC = () => {
     const [content, setContent] = useState("");
     const [video, setVideo] = useState(null);
     const [showSpinner, setShowSpinner] = useState(false);
+    const inputRef = useRef(null);
 
     const {data: session, status} = useSession();
     let email = session?.user?.email;
@@ -55,7 +56,17 @@ const Draft: React.FC = () => {
                         value={content}
                     />
                     <span className="mt-2 text-base text-black leading-normal">Select a video</span>
-                    <input type="file" onChange={(e) => setVideo(e.target.files[0])} className="hidden"/>
+                    <input type="file"
+                           ref={inputRef}
+                           onChange={(e) => setVideo(e.target.files[0])}
+                           className="hidden form-control form-control-sm p-3 mb-2 bg-white text-dark"/>
+                    <button type="button" onClick={() => {
+                        if (inputRef.current != null) {
+                            inputRef.current.value = null;
+                        }
+                    }}>Reset file
+                    </button>
+                    <br/>
                     <input disabled={!content || !title} type="submit" value="Create"/>
                     <a className="back" href="#" onClick={() => Router.push("/")}>
                         or Cancel

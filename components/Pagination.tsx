@@ -13,7 +13,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
     return <nav aria-label="Page navigation example">
         <ul className="pagination justify-content-center">
             <li key="li-0" className="page-item">
-                <button className="page-link" onClick={()=> {
+                <button className="page-link" onClick={() => {
                     router.push(`/page/0`).then(r => console.log(r)).catch(e => console.log(e));
                 }}>First
                 </button>
@@ -21,7 +21,8 @@ const Pagination: React.FC<PaginationProps> = (props) => {
             <li key={`li-${props.currentPage - 1}`} className={`page-item ${props.currentPage == 0 ? "disabled" : ""}`}>
                 <button className="page-link" onClick={() => {
                     router.push(`/page/${props.currentPage - 1}`).then(r => console.log(r)).catch(e => console.log(e));
-                }}>Previous</button>
+                }}>Previous
+                </button>
             </li>
             {Array.from(Array(props.totalPages).keys()).slice(Math.max(0, props.currentPage - 5), props.currentPage + 5).map((value, index, array) => (
                 props.currentPage == value ?
@@ -36,15 +37,18 @@ const Pagination: React.FC<PaginationProps> = (props) => {
                         }}>{value}</button>
                     </li>
             ))}
-            <li key={`li-${props.currentPage + 1}`} className={`page-item ${props.currentPage == props.totalPages - 1 ? "disabled" : ""}`}>
+            <li key={`li-${props.currentPage + 1}`}
+                className={`page-item ${props.currentPage == props.totalPages - 1 ? "disabled" : ""}`}>
                 <button className="page-link" onClick={() => {
                     router.push(`/page/${props.currentPage + 1}`).then(r => console.log(r)).catch(e => console.log(e));
-                }}>Next</button>
+                }}>Next
+                </button>
             </li>
             <li>
-                <button className="page-link"  onClick={() => {
+                <button className="page-link" onClick={() => {
                     router.push(`/page/${props.totalPages - 1}`).then(r => console.log(r)).catch(e => console.log(e));
-                }}>Last</button>
+                }}>Last
+                </button>
             </li>
         </ul>
     </nav>;

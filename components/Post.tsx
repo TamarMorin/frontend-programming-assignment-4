@@ -1,8 +1,8 @@
 import React from "react";
 import Router from "next/router";
 import ReactMarkdown from "react-markdown";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faVideo} from '@fortawesome/free-solid-svg-icons'
 
 export type PostProps = {
     id: number;
@@ -23,7 +23,7 @@ const Post: React.FC<{ post: PostProps }> = ({post}) => {
             <h2>{post.title}</h2>
             <small>By {authorName}</small>
             <ReactMarkdown children={post.content}/>
-            {post.videoUrl != null && <FontAwesomeIcon icon={faVideo} />}
+            {post.videoUrl != null && <FontAwesomeIcon icon={faVideo}/>}
             <style jsx>{`
               div {
                 color: inherit;
