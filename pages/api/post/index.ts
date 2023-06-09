@@ -68,8 +68,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             res.status(401).write({message: 'Unauthorized'})
         }
 
-
-        console.log(`file path is ${file.filepath}`);
         const uniquePublicId = `${file.originalFilename}-${Date.now()}`;
         let videoUrl = "";
         // upload to cloudinary
