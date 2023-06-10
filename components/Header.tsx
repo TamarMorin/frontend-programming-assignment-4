@@ -1,14 +1,19 @@
 import React from "react";
 import Link from "next/link";
 import {useRouter} from "next/router";
-import {signOut, useSession} from "next-auth/react";
+import {signOut} from "next-auth/react";
+import Cookies from "universal-cookie";
+const jwt = require('jsonwebtoken')
+
+const cookies = new Cookies();
 
 const Header: React.FC = () => {
     const router = useRouter();
+    const token = cookies.get("token");
+    const session = jwt.decode(token);
+    const status = session ? "authenticated" : "loading";
     const isActive: (pathname: string) => boolean = (pathname) =>
         router.pathname === pathname;
-
-    const {data: session, status} = useSession();
 
     let left = (
         <div className="left">
@@ -86,8 +91,9 @@ const Header: React.FC = () => {
         right = (
             <div className="right">
                 <Link href="/api/auth/signin" legacyBehavior>
-                    <a data-active={isActive("/signup")}>Log in</a>
+                    <a data-active={isActive("/signup")}>Log in next auth</a>
                 </Link>
+                <Link href="/signin">User & Password Log in</Link>
                 <style jsx>{`
           a {
             text-decoration: none;
@@ -148,7 +154,8 @@ const Header: React.FC = () => {
         right = (
             <div className="right">
                 <p>
-                    {session.user?.name} ({session.user?.email})
+                    {session.username}
+                    {/*{session.username}  {session.user.email}*/}
                 </p>
                 <Link href="/create" legacyBehavior>
                     <button>

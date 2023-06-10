@@ -3,9 +3,12 @@ import prisma from '../../../lib/prisma'
 import {IncomingForm} from "formidable";
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
+import Cookies from "universal-cookie";
+const jwt = require('jsonwebtoken')
 
 require('dotenv').config();
 
+const cookies = new Cookies();
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -47,7 +50,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         const file = data?.files?.inputFile;
         const title = data?.fields?.title;
         const content = data?.fields?.content;
-        const session = data?.fields?.session;
+        const session = jwt.decode(cookies.get("token"));
         const email = data?.fields?.email;
 
         // upload to post to prisma

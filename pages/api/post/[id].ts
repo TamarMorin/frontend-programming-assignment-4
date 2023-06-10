@@ -1,10 +1,11 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
-import {getSession} from 'next-auth/react';
 import prisma from '../../../lib/prisma'
 
 
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
+const jwt = require("jsonwebtoken");
+import Cookies from "universal-cookie";
 
 require('dotenv').config();
 
@@ -28,8 +29,8 @@ cloudinary.v2.config({
 // DELETE /api/post/:id
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const postId = req.query.id;
-
-    const session = await getSession({req})
+    const cookies = new Cookies();
+    const session = jwt.decode(cookies.get("token"))
 
     if (req.method === "DELETE") {
         let responseJsonObj = {};
