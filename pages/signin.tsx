@@ -54,6 +54,7 @@ const Login: React.FC = () => {
                 headers: {"Content-Type": "application/json"},
                 body: body,
             });
+            console.log(res);
             if (res.status === 200) {
                 await Router.push("/signin");
             } else {
@@ -63,6 +64,7 @@ const Login: React.FC = () => {
         } catch (error) {
             console.error(error);
         }
+        
     };
 
     const changeAuthMode = () => {
