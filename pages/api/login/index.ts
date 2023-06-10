@@ -5,6 +5,7 @@ import cloudinary from "cloudinary";
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 import Cookies from 'universal-cookie';
+import { use } from "react";
 
 require('dotenv').config();
 
@@ -60,21 +61,21 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             //     },
             // });
             const collection = database.collection('users');
-            const result = await collection.findOne({
+            const user = await collection.findOne({
                 username: username,
             });
 
-            if (result === null) {
+            if (user === null) {
                 console.log(`api/login username not exists ${username} ${password}`);
                 res.status(401).json({message: `Invalid Credentials`})
             }
             // check if passwords match with bcrypt compare
-            bcrypt.compare(password, process.env.SECRET, function(err, res2) {
+            bcrypt.compare(password, user.password, function(err, res2) {
                 if (err) {
                     console.log(`error in bcrypt compare func`);
                     res.status(500).json({success: false, message: 'error in bcrypt compare func'});
                 }
-                if(req.body.password != result?.password){
+                if(req.body.password != user?.password){
                     console.log(`api/login password is not correct`);
                     res.status(400).json({success: false, message: 'passwords do not match'});
                 }
@@ -82,11 +83,11 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             // if we reach here credentials are ok
 
             const userForToken = {
-                username: result?.username,
-                id: result?._id.toString(),
+                username: user?.username,
+                id: user?._id.toString(),
             }
 
-            const token = jwt.sign({username: result?.username, id: result?._id.toString()}, process.env.JWT_SECRET)
+            const token = jwt.sign({username: user?.username, id: user?._id.toString()}, process.env.JWT_SECRET)
             cookies.set('token', token);
 
             res.status(200).json({"token": token, "username": username, message: "User logged in successfully"});

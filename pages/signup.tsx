@@ -4,6 +4,7 @@ import Router from "next/router";
 import Cookies from "universal-cookie";
 
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const cookies = new Cookies();
 
 const Signup: React.FC = () => {

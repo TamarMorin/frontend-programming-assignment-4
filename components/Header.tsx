@@ -62,7 +62,7 @@ const Header: React.FC = () => {
     if (!session) {
         right = (
             <div className="right">
-                <Link href="/signin">User & Password Log in</Link>
+                <Link href="/login">User & Password Log in</Link>
                 <style jsx>{`
           a {
             text-decoration: none;
