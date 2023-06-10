@@ -12,26 +12,27 @@ const jwt = require('jsonwebtoken')
 // }
 
 // This function can be marked `async` if using `await` inside
-export function middleware(req: NextRequest, res: NextResponse) {
+export function middleware(req: NextRequest) {
     console.log("inside middleware");
     console.log(`req.nextUrl.pathname is ${req.nextUrl.pathname}`);
     if (req.nextUrl.pathname === '/create') {
         // ensure user has jwt token
-        const cookies = new Cookies(req.cookies);
-        const token = cookies.get('token');
+        console.log(`cookies is ${req.cookies}`);
+        const token = req.cookies.get('token');
         if (token == null) {
+            console.log(`token is null`);
             return NextResponse.redirect(new URL('/login', req.url));
         }
 
         console.log(`token is ${token}`);
-        const x = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 // invalid token, set status to 401
+                console.log(`token is invalid`);
                 return NextResponse.redirect(new URL('/login', req.url));
 
             }
         });
-        console.log(`x is ${x}`);
     }
     return NextResponse.next()
 }

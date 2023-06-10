@@ -3,8 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Router from "next/router";
 import Cookies from "universal-cookie";
 
-const cookies = new Cookies();
-
 const Login: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -27,8 +25,9 @@ const Login: React.FC = () => {
                 // set token
                 const {token} = await res.json();
                 // set cookie
+                const cookies = new Cookies();
                 cookies.set('token', token);
-                console.log(`success! token: ${token}`)
+                console.log(`success! cookies: ${JSON.stringify(cookies)}`)
                 await Router.push("/");
             } else {
                 console.log(`failed! res: ${JSON.stringify(res)}`);
