@@ -1,11 +1,7 @@
 import React, {useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Router from "next/router";
-import Cookies from "universal-cookie";
 
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
-const cookies = new Cookies();
 
 const Signup: React.FC = () => {
     const [username, setUsername] = useState("");

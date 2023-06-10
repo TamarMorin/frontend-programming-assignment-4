@@ -68,9 +68,6 @@ async function deletePost(id: number): Promise<void> {
 const Post: React.FC<PostProps> = (props) => {
     console.log(`inside /api/p/${props.id}`);
     const {data: session, status} = useSession();
-    if (status === 'loading') {
-        return <div>Authenticating ...</div>;
-    }
     const userHasValidSession = Boolean(session);
     const postBelongsToUser = session?.user?.email === props.author?.email;
     let title = props.title;

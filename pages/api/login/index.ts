@@ -70,7 +70,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 res.status(401).json({message: `Invalid Credentials`})
             }
             // check if passwords match with bcrypt compare
-            bcrypt.compare(password, user.password, function(err, res2) {
+            bcrypt.compare(password, user?.password, function(err, res2) {
                 if (err) {
                     console.log(`error in bcrypt compare func`);
                     res.status(500).json({success: false, message: 'error in bcrypt compare func'});
@@ -88,7 +88,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             }
 
             const token = jwt.sign({username: user?.username, id: user?._id.toString()}, process.env.JWT_SECRET)
-            cookies.set('token', token);
+            //cookies.set('token', token);
 
             res.status(200).json({"token": token, "username": username, message: "User logged in successfully"});
 

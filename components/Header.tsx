@@ -3,26 +3,12 @@ import Link from "next/link";
 import {useRouter} from "next/router";
 import {signOut} from "next-auth/react";
 import Cookies from "universal-cookie";
-const jwt = require('jsonwebtoken')
-
-const cookies = new Cookies();
+const jwt = require('jsonwebtoken');
 
 const Header: React.FC = () => {
-    const [session, setSession] = useState<{token: string, username: string, name: string}>()
-    
-    useEffect(() => {
-      const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
-      if (loggedUserJSON) {
-        setSession(JSON.parse(loggedUserJSON))
-        if(session)
-          console.log("user is logged11 in:  " +session.name)
-      }
-    }, [])
 
-    const logout = () => {
-      window.localStorage.removeItem('loggedNoteappUser');
-      setSession(undefined);
-    }
+    const cookies = new Cookies();
+    let session = null; // TODO: create session variable out of cookie jwt token
 
     const router = useRouter();
     const isActive: (pathname: string) => boolean = (pathname) =>
@@ -62,7 +48,12 @@ const Header: React.FC = () => {
     if (!session) {
         right = (
             <div className="right">
-                <Link href="/login">User & Password Log in</Link>
+                <Link href="/login" legacyBehavior>
+                    <a className="bold" data-active={isActive("/")}>
+                        User & Password Log in
+                    </a>
+                </Link>
+
                 <style jsx>{`
           a {
             text-decoration: none;
