@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                 <Link href="/api/auth/signin" legacyBehavior>
                     <a data-active={isActive("/signup")}>Log in next auth</a>
                 </Link>
-                <Link href="/signin">User & Password Log in</Link>
+                <Link href="/login">User & Password Log in</Link>
                 <style jsx>{`
           a {
             text-decoration: none;
