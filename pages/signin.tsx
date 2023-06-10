@@ -32,6 +32,7 @@ const Login: React.FC = () => {
 
                 await Router.push("/");
             } else {
+                alert("Login failed.");
                 console.error("Login failed.");
             }
         } catch (error) {

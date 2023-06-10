@@ -23,29 +23,36 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     // post requests
     if (req.method == 'POST') {
         const username = req.body.username;
-        const email = req.body.email;
+        let password = req.body.password;
+        //const email = req.body.email;
         const saltRounds = 10;
-        const password = bcrypt.hash(req.body.password, saltRounds);
+        bcrypt.hash(password, saltRounds, function(err, hash) {
+            if (err) {
+                res.status(500).json({message: `Error logging ${err}`});
+            }
+            password = hash;
+        });
 
         // upload to mongodb
         try {
             await client.connect();
             const database = client.db('blog');
             const collection = database.collection('users');
-            const result = await collection.insertOne({
+            const result = await collection.findOne({
                 username: username,
                 password: password,
             });
             // check if result is successful
-            if (result.insertedId == null) {
-                res.status(500).json({message: `Error logging`});
+            if (result == null) {
+                res.status(401).json({message: `Invalid Credentials`})
             }
 
             const userForToken = {
-                username: username,
-                id: result.insertedId,
+                username: result?.username,
+                id: result?._id.toString(),
             }
-            const token = jwt.token({username: username, id: result.insertedId}, process.env.JWT_SECRET)
+
+            const token = jwt.token({username: result?.username, id: result?._id.toString()}, process.env.JWT_SECRET)
             cookies.set('token', token);
 
             res.status(200).json({ token, username: username, message: "User logged in successfully"});
