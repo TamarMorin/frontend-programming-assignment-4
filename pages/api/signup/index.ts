@@ -25,19 +25,41 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     if (req.method == 'POST') {
         const username = req.body.username;
         const saltRounds = 10;
-        const password = bcrypt.hash(req.body.password, saltRounds);
+        let password = req.body.password;
+
+        if (username === "" || password === "") {
+            console.log(`Username or password is empty ${username} ${password}`);
+            res.status(400).json({message: `Error signup user ${username}, username or password is empty`});
+        }
+
+        bcrypt.hash(password, saltRounds, function (err, hash) {
+            if (err) {
+                res.status(500).json({message: `Error logging ${err}`});
+            }
+            password = hash;
+        });
 
         // upload to mongodb
         try {
             await client.connect();
             const database = client.db('blog');
             const collection = database.collection('users');
+
+            // check if user already exists
+            const resultExist = await collection.findOne({username: username});
+            if (resultExist != null) {
+                console.log(`Username already exists ${JSON.stringify(resultExist)}`);
+                res.status(400).json({message: `Error signup user ${username}, user already exists`});
+            }
+
             const result = await collection.insertOne({
                 username: username,
                 password: password,
             });
+
             // check if result is successful
             if (result.insertedId == null) {
+                console.log("Error", result);
                 res.status(500).json({message: `Error signup user ${username}`});
             }
             // success
