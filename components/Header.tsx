@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {useRouter} from "next/router";
 import {signOut} from "next-auth/react";
@@ -8,10 +8,23 @@ const jwt = require('jsonwebtoken')
 const cookies = new Cookies();
 
 const Header: React.FC = () => {
+    const [session, setSession] = useState<{token: string, username: string, name: string}>()
+    
+    useEffect(() => {
+      const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+      if (loggedUserJSON) {
+        setSession(JSON.parse(loggedUserJSON))
+        if(session)
+          console.log("user is logged11 in:  " +session.name)
+      }
+    }, [])
+
+    const logout = () => {
+      window.localStorage.removeItem('loggedNoteappUser');
+      setSession(undefined);
+    }
+
     const router = useRouter();
-    const token = cookies.get("token");
-    const session = jwt.decode(token);
-    const status = session ? "authenticated" : "loading";
     const isActive: (pathname: string) => boolean = (pathname) =>
         router.pathname === pathname;
 
@@ -46,53 +59,9 @@ const Header: React.FC = () => {
 
     let right = null;
 
-    if (status === 'loading') {
-        left = (
-            <div className="left">
-                <Link href="/" legacyBehavior>
-                    <a className="bold" data-active={isActive("/")}>
-                        Feed
-                    </a>
-                </Link>
-                <style jsx>{`
-          .bold {
-            font-weight: bold;
-          }
-
-          a {
-            text-decoration: none;
-            color: #000;
-            display: inline-block;
-          }
-
-          .left a[data-active="true"] {
-            color: gray;
-          }
-
-          a + a {
-            margin-left: 1rem;
-          }
-        `}</style>
-            </div>
-        );
-        right = (
-            <div className="right">
-                <p>Validating session ...</p>
-                <style jsx>{`
-          .right {
-            margin-left: auto;
-          }
-        `}</style>
-            </div>
-        );
-    }
-
     if (!session) {
         right = (
             <div className="right">
-                <Link href="/api/auth/signin" legacyBehavior>
-                    <a data-active={isActive("/signup")}>Log in next auth</a>
-                </Link>
                 <Link href="/login">User & Password Log in</Link>
                 <style jsx>{`
           a {
@@ -216,3 +185,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
