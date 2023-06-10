@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Router from "next/router";
+import Cookies from "universal-cookie";
 const jwt = require('jsonwebtoken')
+const cookies = new Cookies();
 
 const Login: React.FC = () => {
     const [authMode, setAuthMode] = useState("signin");
@@ -26,7 +28,7 @@ const Login: React.FC = () => {
                 // set token
                 const {token} = await res.json();
                 // set cookie
-                document.cookie = `token=${token};`;
+                cookies.set('token', token);
 
                 await Router.push("/");
             } else {
