@@ -6,8 +6,6 @@ export type PaginationProps = {
     totalPages: number
 };
 
-
-// function Pagination(props: PaginationProps){
 const Pagination: React.FC<PaginationProps> = (props) => {
     const router = useRouter();
     return <nav aria-label="Page navigation example">

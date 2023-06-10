@@ -8,6 +8,8 @@ import prisma from '../../lib/prisma'
 import {useSession} from "next-auth/react";
 import {Video} from "../../components/Video";
 import {MongoClient, ServerApiVersion} from "mongodb";
+const jwt = require("jsonwebtoken");
+import Cookies from 'universal-cookie';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -19,10 +21,20 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 });
 
 
-export const getServerSideProps: GetServerSideProps = async ({params}) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+
+    const cookies = new Cookies(context.req.cookies);
+    let username = null;
+    jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        username = decoded.username;
+    });
+
     const post = await prisma.post.findUnique({
         where: {
-            id: Number(params?.id) || -1,
+            id: Number(context.params?.id) || -1,
         },
         include: {
             author: {
@@ -41,13 +53,13 @@ export const getServerSideProps: GetServerSideProps = async ({params}) => {
         if (result) {
             videoUrl = result.url;
         }
-        console.log(`result: ${result?.url}`);
+        console.log(`result url: ${result?.url}`);
     } catch (error) {
         console.log("Error", error);
     }
 
     return {
-        props: Object.assign({}, post, {videoUrl: videoUrl}) ?? {author: {name: "Me"}},
+        props: Object.assign({}, post, {videoUrl: videoUrl, header: {username: username}}) ?? {author: {name: "Me"}},
     };
 };
 
@@ -65,18 +77,20 @@ async function deletePost(id: number): Promise<void> {
     await Router.push("/")
 }
 
+
 const Post: React.FC<PostProps> = (props) => {
     console.log(`inside /api/p/${props.id}`);
-    const {data: session, status} = useSession();
-    const userHasValidSession = Boolean(session);
-    const postBelongsToUser = session?.user?.email === props.author?.email;
+
+    console.log(`props: ${JSON.stringify(props)}`);
+
+    const postBelongsToUser = props.header.username === props.author?.email;
     let title = props.title;
     if (!props.published) {
         title = `${title} (Draft)`;
     }
 
     return (
-        <Layout>
+        <Layout header={props.header}>
             <div>
                 <h2>{title}</h2>
                 <p>By {props?.author?.name || "Unknown author"}</p>
@@ -84,10 +98,10 @@ const Post: React.FC<PostProps> = (props) => {
                 {props.videoUrl && <Video videoUrl={props.videoUrl}/>}
                 <br/>
                 <br/>
-                {!props.published && userHasValidSession && postBelongsToUser && (
+                {!props.published && postBelongsToUser && (
                     <button onClick={() => publishPost(props.id)}>Publish</button>
                 )}
-                {userHasValidSession && postBelongsToUser && (
+                {postBelongsToUser && (
                     <button onClick={() => deletePost(props.id)}>Delete</button>
                 )}
             </div>

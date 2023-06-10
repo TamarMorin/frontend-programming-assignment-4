@@ -2,7 +2,6 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
 
-const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version

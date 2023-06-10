@@ -1,14 +1,29 @@
-import React, { createContext, useEffect, useState } from "react";
 import Link from "next/link";
-import {useRouter} from "next/router";
-import {signOut} from "next-auth/react";
+import Router, {useRouter} from "next/router";
 import Cookies from "universal-cookie";
 const jwt = require('jsonwebtoken');
 
-const Header: React.FC = () => {
 
+// add server side props to get session from cookie
+export type HeaderProps = {
+    username: string;
+};
+
+
+function signOut() {
     const cookies = new Cookies();
-    let session = null; // TODO: create session variable out of cookie jwt token
+    cookies.remove("token");
+    Router.push("/login");
+}
+
+const Header: React.FC<{header: HeaderProps}> = ({header}) => {
+
+    let session = {
+        user : {
+            name: header.username,
+            email: null // TODO: change this to real email
+        }
+    }
 
     const router = useRouter();
     const isActive: (pathname: string) => boolean = (pathname) =>
@@ -45,7 +60,8 @@ const Header: React.FC = () => {
 
     let right = null;
 
-    if (!session) {
+    // if (!session) {
+    if (session.user.name === null) {
         right = (
             <div className="right">
                 <Link href="/login" legacyBehavior>
@@ -53,7 +69,6 @@ const Header: React.FC = () => {
                         User & Password Log in
                     </a>
                 </Link>
-
                 <style jsx>{`
           a {
             text-decoration: none;
@@ -79,7 +94,8 @@ const Header: React.FC = () => {
         );
     }
 
-    if (session) {
+    // if (session) {
+    if (session.user.name !== null) {
         left = (
             <div className="left">
                 <Link href="/" legacyBehavior>
@@ -114,8 +130,7 @@ const Header: React.FC = () => {
         right = (
             <div className="right">
                 <p>
-                    {session.username}
-                    {/*{session.username}  {session.user.email}*/}
+                    {session.user.name}  {session.user.email}
                 </p>
                 <Link href="/create" legacyBehavior>
                     <button>

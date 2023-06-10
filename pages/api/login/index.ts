@@ -37,29 +37,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         try {
             await client.connect();
             const database = client.db('blog');
-
-            // apply schema validation - for now we do it manually every time! (it's bad practice)
-            // await database.command({
-            //     collMod: 'users',
-            //     validator: {
-            //         $jsonSchema: {
-            //             bsonType: 'object',
-            //             title: "Users collection validation",
-            //             required: ['username', 'password'],
-            //             uniqueFields: ['username'],
-            //             properties: {
-            //                 username: {
-            //                     bsonType: 'string',
-            //                     description: 'must be a string and is required',
-            //                 },
-            //                 password: {
-            //                     bsonType: 'string',
-            //                     description: 'must be a string and is required',
-            //                 }
-            //             },
-            //         }
-            //     },
-            // });
             const collection = database.collection('users');
             const user = await collection.findOne({
                 username: username,
@@ -70,18 +47,14 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 res.status(401).json({message: `Invalid Credentials`})
             }
             // check if passwords match with bcrypt compare
-            bcrypt.compare(password, user?.password, function(err, res2) {
-                if (err) {
-                    console.log(`error in bcrypt compare func`);
-                    res.status(500).json({success: false, message: 'error in bcrypt compare func'});
-                }
-                if(req.body.password != user?.password){
-                    console.log(`api/login password is not correct`);
-                    res.status(400).json({success: false, message: 'passwords do not match'});
-                }
-            });
-            // if we reach here credentials are ok
+            if (!bcrypt.compare(password, user?.password)) {
+                console.log(`api/login password is not correct`);
+                res.status(400).json({success: false, message: 'passwords do not match'});
+            }
 
+            // if we reach here credentials are ok
+            console.log(`api/login user logged in successfully ${username} ${password}`);
+            // create token
             const userForToken = {
                 username: user?.username,
                 id: user?._id.toString(),

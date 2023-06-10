@@ -29,8 +29,16 @@ cloudinary.v2.config({
 // DELETE /api/post/:id
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const postId = req.query.id;
-    const cookies = new Cookies();
-    const session = jwt.decode(cookies.get("token"))
+    const cookies = new Cookies(req.cookies);
+    let username = null;
+    jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        username = decoded.username;
+    });
+    // this is our way of checking that the JWT is valid, we might want to change this later
+    const session = username !== null;
 
     if (req.method === "DELETE") {
         let responseJsonObj = {};

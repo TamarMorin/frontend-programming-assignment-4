@@ -1,13 +1,14 @@
 import React, {ReactNode} from "react";
-import Header from "./Header";
+import Header, {HeaderProps} from "./Header";
 
 type Props = {
     children: ReactNode;
+    header: HeaderProps;
 };
 
 const Layout: React.FC<Props> = (props) => (
     <div>
-        <Header/>
+        <Header header={props.header}/>
         <div className="layout">{props.children}</div>
         <style jsx global>{`
       html {

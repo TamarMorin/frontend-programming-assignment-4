@@ -6,6 +6,8 @@ import prisma from '../lib/prisma'
 import {MongoClient, ServerApiVersion} from "mongodb";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pagination, {PaginationProps} from "../components/Pagination";
+import Cookies from "universal-cookie";
+const jwt = require("jsonwebtoken");
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -19,6 +21,15 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 export const PAGE_SIZE: number = 10;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+    const cookies = new Cookies(context.req.cookies);
+    let username = null;
+    username = jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        return decoded.username;
+    });
+
     const numberOfPages = Math.ceil(await prisma.post.count({
         where: {
             published: true,
@@ -61,6 +72,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             feed,
             numberOfPages,
             pageNumber,
+            header: {
+                username: username,
+            }
         },
     };
 };
@@ -69,12 +83,15 @@ type Props = {
     feed: PostProps[];
     numberOfPages: number;
     pageNumber: number;
+    header: {
+        username: string;
+    }
 };
 
 
 const Blog: React.FC<Props> = (props) => {
     return (
-        <Layout>
+        <Layout header={props.header}>
             <div className="page">
                 <h1>Public Feed</h1>
                 <main>

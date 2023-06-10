@@ -1,18 +1,46 @@
 import React, {useRef, useState} from "react";
 import Layout from "../components/Layout";
 import Router from "next/router";
-import {useSession} from "next-auth/react";
 import {Spinner} from "../components/Spinner";
+import {GetServerSideProps} from "next";
+import Cookies from "universal-cookie";
+const jwt = require("jsonwebtoken");
 
-const Draft: React.FC = () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const {req, res} = context;
+    const cookies = new Cookies(req.cookies);
+    let username = null;
+    jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        username = decoded.username;
+    });
+
+    return {
+        props: {
+            header: {
+                username: username,
+            }
+        }
+    }
+}
+
+type Props = {
+    header: {
+        username: string;
+    }
+}
+
+const Draft: React.FC<Props> = (props: Props) => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [video, setVideo] = useState(null);
     const [showSpinner, setShowSpinner] = useState(false);
     const inputRef = useRef(null);
 
-    const {data: session, status} = useSession();
-    let email = session?.user?.email;
+
+    let email = props.header.username; // TODO: change this to real email
     const submitData = async (e: React.SyntheticEvent) => {
         setShowSpinner(true);
         e.preventDefault();
@@ -20,7 +48,6 @@ const Draft: React.FC = () => {
         formData.append("inputFile", video);
         formData.append("title", title);
         formData.append("content", content);
-        formData.append("session", session);
         formData.append("email", email);
         try {
             await fetch(`/api/post`, {
@@ -36,7 +63,7 @@ const Draft: React.FC = () => {
     };
 
     return (
-        <Layout>
+        <Layout header={props.header}>
             <div>
                 {showSpinner && <Spinner displayed={showSpinner}/>}
                 {!showSpinner && <form onSubmit={submitData}>

@@ -2,9 +2,10 @@ import React from "react";
 import {GetServerSideProps} from "next";
 import Layout from "../components/Layout";
 import Post, {PostProps} from "../components/Post";
-import {useSession, getSession} from "next-auth/react";
 import prisma from '../lib/prisma'
 import {MongoClient, ServerApiVersion} from "mongodb";
+const jwt = require("jsonwebtoken");
+import Cookies from 'universal-cookie';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -16,15 +17,18 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 });
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    const session = await getSession({req});
-    if (!session) {
-        res.statusCode = 403;
-        return {props: {drafts: []}};
-    }
+    const cookies = new Cookies(req.cookies);
+    let username = null;
+    jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return null;
+        }
+        username = decoded.username;
+    });
 
     const drafts = await prisma.post.findMany({
         where: {
-            author: {email: session.user?.email},
+            author: {email: username}, // TODO: replace with real email or decide what we wanna do here
             published: false,
         },
         include: {
@@ -45,32 +49,27 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         drafts[i] = Object.assign({}, drafts[i], {videoUrl: result?.url ?? null})
     }
 
-
     return {
-        props: {drafts},
+        props: {
+            drafts,
+            header: {
+                username: username,
+            },
+        },
     };
 };
 
 type Props = {
     drafts: PostProps[];
-    numberOfPages: number;
-    pageNumber: number;
+    header: {
+        username: string;
+    };
 };
 
 const Drafts: React.FC<Props> = (props) => {
-    const {data: session} = useSession();
-
-    if (!session) {
-        return (
-            <Layout>
-                <h1>My Drafts</h1>
-                <div>You need to be authenticated to view this page.</div>
-            </Layout>
-        );
-    }
 
     return (
-        <Layout>
+        <Layout header={props.header}>
             <div className="page">
                 <h1>My Drafts</h1>
                 <main>

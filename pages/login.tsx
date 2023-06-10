@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Router from "next/router";
 import Cookies from "universal-cookie";
 
-const jwt = require('jsonwebtoken')
 const cookies = new Cookies();
 
 const Login: React.FC = () => {

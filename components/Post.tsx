@@ -14,6 +14,9 @@ export type PostProps = {
     content: string;
     published: boolean;
     videoUrl: string;
+    header: {
+        username: string;
+    }
 };
 
 const Post: React.FC<{ post: PostProps }> = ({post}) => {
