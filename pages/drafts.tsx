@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import Post, {PostProps} from "../components/Post";
 import prisma from '../lib/prisma'
 import {MongoClient, ServerApiVersion} from "mongodb";
+
 const jwt = require("jsonwebtoken");
 import Cookies from 'universal-cookie';
 
@@ -19,16 +20,18 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
     const cookies = new Cookies(req.cookies);
     let username = null;
+    let email = null;
     jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return null;
         }
         username = decoded.username;
+        email = decoded.email;
     });
 
     const drafts = await prisma.post.findMany({
         where: {
-            author: {email: username}, // TODO: replace with real email or decide what we wanna do here
+            author: {email: email},
             published: false,
         },
         include: {
@@ -54,6 +57,7 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             drafts,
             header: {
                 username: username,
+                email: email,
             },
         },
     };
@@ -63,6 +67,7 @@ type Props = {
     drafts: PostProps[];
     header: {
         username: string;
+        email: string;
     };
 };
 

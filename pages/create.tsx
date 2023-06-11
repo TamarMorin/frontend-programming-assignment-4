@@ -10,17 +10,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const {req, res} = context;
     const cookies = new Cookies(req.cookies);
     let username = null;
+    let email = null;
     jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return null;
         }
         username = decoded.username;
+        email = decoded.email;
+
     });
 
     return {
         props: {
             header: {
                 username: username,
+                email: email,
             }
         }
     }
@@ -29,6 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 type Props = {
     header: {
         username: string;
+        email: string;
     }
 }
 
@@ -40,7 +45,7 @@ const Draft: React.FC<Props> = (props: Props) => {
     const inputRef = useRef(null);
 
 
-    let email = props.header.username; // TODO: change this to real email
+    let email = props.header.email;
     const submitData = async (e: React.SyntheticEvent) => {
         setShowSpinner(true);
         e.preventDefault();

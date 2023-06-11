@@ -25,11 +25,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const cookies = new Cookies(context.req.cookies);
     let username = null;
+    let email = null;
     jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return null;
         }
         username = decoded.username;
+        email = decoded.email;
     });
 
     const post = await prisma.post.findUnique({
@@ -59,7 +61,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     return {
-        props: Object.assign({}, post, {videoUrl: videoUrl, header: {username: username}}) ?? {author: {name: "Me"}},
+        props: Object.assign({}, post, {videoUrl: videoUrl, header: {username: username, email: email}}) ?? {author: {name: "Me"}},
     };
 };
 
@@ -83,7 +85,7 @@ const Post: React.FC<PostProps> = (props) => {
 
     console.log(`props: ${JSON.stringify(props)}`);
 
-    const postBelongsToUser = props.header.username === props.author?.email;
+    const postBelongsToUser = props.header.email === props.author?.email;
     let title = props.title;
     if (!props.published) {
         title = `${title} (Draft)`;

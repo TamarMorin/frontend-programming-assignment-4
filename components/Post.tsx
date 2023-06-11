@@ -16,6 +16,7 @@ export type PostProps = {
     videoUrl: string;
     header: {
         username: string;
+        email: string;
     }
 };
 

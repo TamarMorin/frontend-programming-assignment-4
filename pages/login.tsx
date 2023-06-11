@@ -6,6 +6,7 @@ import Cookies from "universal-cookie";
 const Login: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
 
     const handleSubmitLogin = async (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
@@ -15,6 +16,7 @@ const Login: React.FC = () => {
             const body = JSON.stringify({
                 username: username,
                 password: password,
+                email: email
             });
             const res = await fetch(`/api/login`, {
                 method: "POST",
@@ -57,6 +59,15 @@ const Login: React.FC = () => {
                             onChange={(e) => setUsername(e.target.value)}
                             className="form-control mt-1"
                             placeholder="Enter username"
+                        />
+                    </div>
+                    <div className="form-group mt-3">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="form-control mt-1"
+                            placeholder="Enter email"
                         />
                     </div>
                     <div className="form-group mt-3">

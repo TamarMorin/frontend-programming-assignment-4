@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 // add server side props to get session from cookie
 export type HeaderProps = {
     username: string;
+    email: string;
 };
 
 
@@ -17,11 +18,11 @@ function signOut() {
 }
 
 const Header: React.FC<{header: HeaderProps}> = ({header}) => {
-
+    // simple manipulation to get similar session variable out of token decoded
     let session = {
         user : {
             name: header.username,
-            email: null // TODO: change this to real email
+            email: header.email
         }
     }
 

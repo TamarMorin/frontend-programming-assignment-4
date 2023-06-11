@@ -27,6 +27,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     if (req.method == 'POST') {
         const username = req.body.username;
         const password = req.body.password;
+        const email = req.body.email;
 
         if (username === "" || password === "") {
             res.status(400).json({message: "username and password must not be empty"})
@@ -40,6 +41,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             const collection = database.collection('users');
             const user = await collection.findOne({
                 username: username,
+                email: email,
             });
 
             if (user === null) {
@@ -54,13 +56,15 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
             // if we reach here credentials are ok
             console.log(`api/login user logged in successfully ${username} ${password}`);
+
             // create token
             const userForToken = {
                 username: user?.username,
+                email: user?.email,
                 id: user?._id.toString(),
             }
 
-            const token = jwt.sign({username: user?.username, id: user?._id.toString()}, process.env.JWT_SECRET)
+            const token = jwt.sign(userForToken, process.env.JWT_SECRET)
             //cookies.set('token', token);
 
             res.status(200).json({"token": token, "username": username, message: "User logged in successfully"});

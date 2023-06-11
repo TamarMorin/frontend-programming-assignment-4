@@ -34,5 +34,6 @@ export function middleware(req: NextRequest) {
             }
         });
     }
+    console.log(`passed middleware`);
     return NextResponse.next()
 }

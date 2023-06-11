@@ -23,11 +23,13 @@ export const PAGE_SIZE: number = 10;
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const cookies = new Cookies(context.req.cookies);
     let username = null;
-    username = jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
+    let email = null;
+    jwt.verify(cookies.get("token"), process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return null;
         }
-        return decoded.username;
+        username = decoded.username;
+        email = decoded.email;
     });
 
     const numberOfPages = Math.ceil(await prisma.post.count({
@@ -74,6 +76,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             pageNumber,
             header: {
                 username: username,
+                email: email
             }
         },
     };
@@ -85,6 +88,7 @@ type Props = {
     pageNumber: number;
     header: {
         username: string;
+        email: string;
     }
 };
 

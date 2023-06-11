@@ -6,6 +6,7 @@ import Router from "next/router";
 const Signup: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
 
     const handleSubmitSignup = async (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
@@ -15,6 +16,7 @@ const Signup: React.FC = () => {
             const body = JSON.stringify({
                 username: username,
                 password: password,
+                email: email,
             });
             const res = await fetch(`/api/signup`, {
                 method: "POST",
@@ -25,7 +27,7 @@ const Signup: React.FC = () => {
                 await Router.push("/login");
             } else {
                 alert("Signup failed.");
-                console.error(`Signup failed. HTTP status = ${res.status} ${res.statusText} ${res.message}`);
+                console.error(`Signup failed. HTTP status = ${res.status} ${res.statusText} ${res}`);
             }
         } catch (error) {
             console.error(error);
@@ -50,6 +52,15 @@ const Signup: React.FC = () => {
                             onChange={(e) => setUsername(e.target.value)}
                             className="form-control mt-1"
                             placeholder="Enter username"
+                        />
+                    </div>
+                    <div className="form-group mt-3">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="form-control mt-1"
+                            placeholder="Enter email"
                         />
                     </div>
                     <div className="form-group mt-3">
