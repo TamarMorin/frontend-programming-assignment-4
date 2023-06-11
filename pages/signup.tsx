@@ -29,7 +29,8 @@ const Signup: React.FC = () => {
             if (res.status === 200) {
                 await Router.push("/login");
             } else {
-                alert(`Signup failed. ${JSON.stringify(res)}`);
+                const data = await res.json();
+                alert(data.message);
                 console.error(`Signup failed. HTTP status = ${res.status} ${res.statusText} ${res}`);
             }
         } catch (error) {

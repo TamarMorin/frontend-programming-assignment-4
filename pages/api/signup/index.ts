@@ -56,12 +56,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             res.status(400).json({message: `Error signup user ${username}, username or password is empty`});
         }
 
-        bcrypt.hash(password, saltRounds, function (err, hash) {
-            if (err) {
-                res.status(500).json({message: `Error logging ${err}`});
-            }
-            password = hash;
-        });
+        const passwordHash = await bcrypt.hash(password, saltRounds)
 
         // upload to mongodb
         try {
@@ -78,8 +73,9 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
             const result = await collection.insertOne({
                 username: username,
-                password: password,
+                password: passwordHash,
                 email: email,
+                image: image
             });
 
             // check if result is successful
@@ -87,24 +83,26 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 console.log("Error", result);
                 return res.status(500).json({message: `Error signup user ${username}`});
             }
-
-
-            // upload image to cloudinary, save imageUrl in prisma db (not like video url which is saved in mongodb)
-            // only because we already have image attribute in prisma db
-            const uniquePublicId = `${image.originalFilename}-${Date.now()}`;
+            
             let imageUrl = "";
-            // upload to cloudinary
-            try {
-                const response = await cloudinary.v2.uploader.upload(image.filepath, {
-                    resource_type: "image",
-                    public_id: uniquePublicId,
-                });
-                imageUrl = response.secure_url;
-                console.log("successful uploaded profile image to cloudinary");
-                console.log(response);
-            } catch (error) {
-                console.log("Error upload profile image to cloudinary", error);
-                return res.status(500).json({message: `Error upload profile image to cloudinary user ${username}, ${error}`});
+
+            if(image){
+                // upload image to cloudinary, save imageUrl in prisma db (not like video url which is saved in mongodb)
+                // only because we already have image attribute in prisma db
+                const uniquePublicId = `${image.originalFilename}-${Date.now()}`;
+                // upload to cloudinary
+                try {
+                    const response = await cloudinary.v2.uploader.upload(image.filepath, {
+                        resource_type: "image",
+                        public_id: uniquePublicId,
+                    });
+                    imageUrl = response.secure_url;
+                    console.log("successful uploaded profile image to cloudinary");
+                    console.log(response);
+                } catch (error) {
+                    console.log("Error upload profile image to cloudinary", error);
+                    return res.status(500).json({message: `Error upload profile image to cloudinary user ${username}, ${error}`});
+                }
             }
 
 

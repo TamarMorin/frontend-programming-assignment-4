@@ -46,12 +46,14 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
             if (user === null) {
                 console.log(`api/login username not exists ${username} ${password}`);
-                res.status(401).json({message: `Invalid Credentials`})
+                res.status(401).json({message: `Invalid Credentials`});
+                return;
             }
             // check if passwords match with bcrypt compare
-            if (!bcrypt.compare(password, user?.password)) {
+            const originPassword = await bcrypt.compare(password, user?.password);
+            if (originPassword === null) {
                 console.log(`api/login password is not correct`);
-                res.status(400).json({success: false, message: 'passwords do not match'});
+                return res.status(400).json({success: false, message: 'passwords do not match'});
             }
 
             // if we reach here credentials are ok

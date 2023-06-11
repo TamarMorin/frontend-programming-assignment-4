@@ -32,8 +32,9 @@ const Login: React.FC = () => {
                 console.log(`success! cookies: ${JSON.stringify(cookies)}`)
                 await Router.push("/");
             } else {
+                const data = await res.json();
+                alert(data.message);
                 console.log(`failed! res: ${JSON.stringify(res)}`);
-                alert("Login failed.");
                 console.error("Login failed.");
             }
         } catch (error) {

@@ -15,7 +15,7 @@ const jwt = require('jsonwebtoken')
 export function middleware(req: NextRequest) {
     console.log("inside middleware");
     console.log(`req.nextUrl.pathname is ${req.nextUrl.pathname}`);
-    if (req.nextUrl.pathname === '/create' || req.nextUrl.pathname.startsWith('/api')) {
+    if (req.nextUrl.pathname === '/create') {
         // ensure user has jwt token
         console.log(`cookies is ${req.cookies}`);
         const token = req.cookies.get('token');
