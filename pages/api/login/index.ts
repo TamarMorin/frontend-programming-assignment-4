@@ -5,7 +5,7 @@ import cloudinary from "cloudinary";
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 import Cookies from 'universal-cookie';
-import { use } from "react";
+import {use} from "react";
 
 require('dotenv').config();
 
@@ -30,7 +30,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         const email = req.body.email;
 
         if (username === "" || password === "") {
-            res.status(400).json({message: "username and password must not be empty"})
+            return res.status(401).json({message: "username and password must not be empty"})
         }
 
 
@@ -46,14 +46,16 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
             if (user === null) {
                 console.log(`api/login username not exists ${username} ${password}`);
-                res.status(401).json({message: `Invalid Credentials`});
-                return;
+                return res.status(401).json({message: `Invalid Credentials`});
             }
+
+
             // check if passwords match with bcrypt compare
-            const originPassword = await bcrypt.compare(password, user?.password);
-            if (originPassword === null) {
-                console.log(`api/login password is not correct`);
-                return res.status(400).json({success: false, message: 'passwords do not match'});
+            let passwordIsValid = true;
+            let outerErr = null;
+            if (!await bcrypt.compare(password, user?.password)) {
+                console.log(`api/login password not match ${username} ${password}`);
+                return res.status(401).json({message: `Invalid Credentials`});
             }
 
             // if we reach here credentials are ok
@@ -69,11 +71,11 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             const token = jwt.sign(userForToken, process.env.JWT_SECRET)
             //cookies.set('token', token);
 
-            res.status(200).json({"token": token, "username": username, message: "User logged in successfully"});
+            return res.status(200).json({"token": token, "username": username, message: "User logged in successfully"});
 
         } catch (error) {
             console.log(`api/login error ${error}`);
-            res.status(500).json({message: `Error login user ${username}, ${error}`});
+            return res.status(500).json({message: `Error login user ${username}, ${error}`});
         }
     }
 }
