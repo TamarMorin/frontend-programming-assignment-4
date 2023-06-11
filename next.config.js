@@ -1,3 +1,7 @@
 const {withSuperjson} = require('next-superjson')
 
-module.exports = withSuperjson()({})
+module.exports = withSuperjson()({
+    images: {
+        domains: ['res.cloudinary.com'],
+    },
+})

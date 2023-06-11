@@ -141,6 +141,9 @@ const Header: React.FC<{header: HeaderProps}> = ({header}) => {
                 <button onClick={() => signOut()}>
                     <a>Log out</a>
                 </button>
+                <button onClick={() => router.push('/profile')}>
+                    <a>Profile</a>
+                </button>
                 <style jsx>{`
           a {
             text-decoration: none;

@@ -1,6 +1,7 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
+import {IncomingForm} from "formidable";
 
 const bcrypt = require('bcrypt');
 import {PrismaClient, Prisma} from '@prisma/client'
@@ -25,13 +26,30 @@ cloudinary.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+export const config = {
+    api: {
+        bodyParser: false
+    }
+};
+
+
 // Handle any requests to /api/singup
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == 'POST') {
-        const username = req.body.username;
-        const email = req.body.email;
         const saltRounds = 10;
-        let password = req.body.password;
+        const data = await new Promise((resolve, reject) => {
+            const form = new IncomingForm();
+
+            form.parse(req, (err, fields, files) => {
+                if (err) return reject(err);
+                resolve({fields, files});
+            });
+        });
+
+        const image = data?.files?.image;
+        const username = data?.fields?.username;
+        let password = data?.fields?.password;
+        const email = data?.fields?.email;
 
         if (username === "" || password === "" || email === "") {
             console.log(`Username or password or email is empty ${username} ${password}`);
@@ -71,6 +89,25 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             }
 
 
+            // upload image to cloudinary, save imageUrl in prisma db (not like video url which is saved in mongodb)
+            // only because we already have image attribute in prisma db
+            const uniquePublicId = `${image.originalFilename}-${Date.now()}`;
+            let imageUrl = "";
+            // upload to cloudinary
+            try {
+                const response = await cloudinary.v2.uploader.upload(image.filepath, {
+                    resource_type: "image",
+                    public_id: uniquePublicId,
+                });
+                imageUrl = response.secure_url;
+                console.log("successful uploaded profile image to cloudinary");
+                console.log(response);
+            } catch (error) {
+                console.log("Error upload profile image to cloudinary", error);
+                return res.status(500).json({message: `Error upload profile image to cloudinary user ${username}, ${error}`});
+            }
+
+
             // create same user in prisma
             console.log(`Creating user with username: ${username} and email: ${email} in prisma db`);
             try {
@@ -78,6 +115,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                     data: {
                         name: username,
                         email: email,
+                        image: imageUrl,
                         posts: {
                             create: [],
                         },

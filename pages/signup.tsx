@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Router from "next/router";
 
@@ -7,26 +7,29 @@ const Signup: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
+    const [image, setImage] = useState(null);
+    const inputRef = useRef(null);
 
     const handleSubmitSignup = async (event: React.FormEvent<HTMLFormElement>): void => {
         event.preventDefault();
         // Perform login logic using credentials.username and credentials.password
         // For simplicity, we'll just log the credentials to the console
         try {
-            const body = JSON.stringify({
-                username: username,
-                password: password,
-                email: email,
-            });
+            const formData = new FormData();
+            formData.append("username", username);
+            formData.append("password", password);
+            formData.append("email", email);
+            formData.append("image", image);
+
             const res = await fetch(`/api/signup`, {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: body,
+                body: formData,
             });
+
             if (res.status === 200) {
                 await Router.push("/login");
             } else {
-                alert("Signup failed.");
+                alert(`Signup failed. ${JSON.stringify(res)}`);
                 console.error(`Signup failed. HTTP status = ${res.status} ${res.statusText} ${res}`);
             }
         } catch (error) {
@@ -71,6 +74,19 @@ const Signup: React.FC = () => {
                             className="form-control mt-1"
                             placeholder="Enter password"
                         />
+                    </div>
+                    <div className="form-group mt-3">
+                        <label>Profile Picture</label>
+                        <input type="file"
+                               ref={inputRef}
+                               onChange={(e) => setImage(e.target.files[0])}
+                               className="hidden form-control form-control-sm p-3 mb-2 bg-white text-dark"/>
+                        <button type="button" onClick={() => {
+                            if (inputRef.current != null) {
+                                inputRef.current.value = null;
+                            }
+                        }}>Reset image
+                        </button>
                     </div>
                     <div className="d-grid gap-2 mt-3">
                         <button type="submit" className="btn btn-primary">
