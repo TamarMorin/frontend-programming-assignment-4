@@ -40,6 +40,7 @@ CREATE TABLE "sessions" (
 CREATE TABLE "users" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT,
+    "full_name" TEXT,
     "email" TEXT,
     "email_verified" DATETIME,
     "image" TEXT,

@@ -7,6 +7,7 @@ const Signup: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
+    const [fullName, setName] = useState("");
     const [image, setImage] = useState(null);
     const inputRef = useRef(null);
 
@@ -19,6 +20,7 @@ const Signup: React.FC = () => {
             formData.append("username", username);
             formData.append("password", password);
             formData.append("email", email);
+            formData.append("fullName", fullName);
             formData.append("image", image);
 
             const res = await fetch(`/api/signup`, {
@@ -48,6 +50,15 @@ const Signup: React.FC = () => {
                         <span className="link-primary" onClick={ () => Router.push("/login")}>
               Log In
             </span>
+                    </div>
+                    <div className="form-group mt-3">
+                        <label>Name</label>
+                        <input
+                            type="text"
+                            onChange={(e) => setName(e.target.value)}
+                            className="form-control mt-1"
+                            placeholder="Enter your name"
+                        />
                     </div>
                     <div className="form-group mt-3">
                         <label>Username</label>

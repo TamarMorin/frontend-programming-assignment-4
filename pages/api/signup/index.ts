@@ -50,9 +50,10 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         const username = data?.fields?.username;
         let password = data?.fields?.password;
         const email = data?.fields?.email;
+        const fullName = data?.fields?.fullName;
 
-        if (username === "" || password === "" || email === "") {
-            console.log(`Username or password or email is empty ${username} ${password}`);
+        if (username === "" || password === "" || email === "" || fullName === "") {
+            console.log(`Username or password or email or name is empty ${username} ${password}`);
             res.status(400).json({message: `Error signup user ${username}, username or password is empty`});
         }
 
@@ -73,6 +74,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
             const result = await collection.insertOne({
                 username: username,
+                fullName: fullName,
                 password: passwordHash,
                 email: email,
                 image: image
@@ -83,7 +85,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 console.log("Error", result);
                 return res.status(500).json({message: `Error signup user ${username}`});
             }
-            
+
             let imageUrl = "";
 
             if(image){
@@ -112,6 +114,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 const user = await prisma.user.create({
                     data: {
                         name: username,
+                        fullName: fullName,
                         email: email,
                         image: imageUrl,
                         posts: {
