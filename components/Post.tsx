@@ -32,7 +32,7 @@ const Post: React.FC<{ post: PostProps }> = ({post}) => {
             {post.videoUrl != null && <FontAwesomeIcon icon={faVideo}/>}
             <br/>
             {post.profileImageUrl && (
-                <img src={post.profileImageUrl} alt="profile image" width={200} height={200}/>
+                <img src={post.profileImageUrl} alt="profile image" width={50} height={50}/>
             )}
             <style jsx>{`
               div {
