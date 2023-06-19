@@ -3,6 +3,7 @@ import Router from "next/router";
 import ReactMarkdown from "react-markdown";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faVideo} from '@fortawesome/free-solid-svg-icons'
+import prisma from "../lib/prisma";
 
 export type PostProps = {
     id: number;
@@ -17,12 +18,12 @@ export type PostProps = {
     header: {
         username: string;
         email: string;
-    }
+    },
+    profileImageUrl: string;
 };
 
 const Post: React.FC<{ post: PostProps }> = ({post}) => {
     const authorName = post.author ? post.author.name : "Unknown author";
-
     return (
         <div onClick={() => Router.push("/p/[id]", `/p/${post.id}`)}>
             <h2>{post.title}</h2>
@@ -30,6 +31,9 @@ const Post: React.FC<{ post: PostProps }> = ({post}) => {
             <ReactMarkdown children={post.content}/>
             {post.videoUrl != null && <FontAwesomeIcon icon={faVideo}/>}
             <br/>
+            {post.profileImageUrl && (
+                <img src={post.profileImageUrl} alt="profile image" width={200} height={200}/>
+            )}
             <style jsx>{`
               div {
                 color: inherit;
