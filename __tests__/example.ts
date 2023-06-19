@@ -1,6 +1,6 @@
 import handle from '../pages/api/signup';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 import cloudinary from 'cloudinary';
 import { IncomingForm } from 'formidable';
 import bcrypt from 'bcrypt';
@@ -58,27 +58,30 @@ describe('API Tests', () => {
     (prisma.user.create as jest.Mock).mockResolvedValue({ id: 1 });
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-    // Mock the Prisma post.create function
-  });
-
-  afterEach(() => {
+    // Clear the mocks for each test case
     jest.clearAllMocks();
   });
 
   it('should create a new user and return the result', async () => {
-    const clientMock = new MongoClient();
+    const findOneMock = jest.fn().mockResolvedValue(null);
+    const insertOneMock = jest.fn().mockResolvedValue({ insertedId: 1 });
+
     const collectionMock = {
-      findOne: jest.fn().mockResolvedValue(null),
-      insertOne: jest.fn().mockResolvedValue({ insertedId: 1 }),
+      findOne: findOneMock,
+      insertOne: insertOneMock,
     };
 
-    // Mock the implementation of MongoClient's connect method
-    (MongoClient as jest.Mock).mockResolvedValueOnce(clientMock);
-
-    // Mock the implementation of MongoClient's db method
-    clientMock.db = jest.fn().mockReturnValue({
+    const databaseMock = {
       collection: jest.fn().mockReturnValue(collectionMock),
-    });
+    };
+
+    const clientMock = {
+      connect: jest.fn(),
+      db: jest.fn().mockReturnValue(databaseMock),
+    };
+
+    // Mock the implementation of MongoClient
+    (MongoClient as jest.Mock).mockImplementation(clientMock);
 
     // Mock the implementation of cloudinary.v2.uploader.upload
     (cloudinary.v2.uploader.upload as jest.Mock).mockResolvedValue({
@@ -91,6 +94,9 @@ describe('API Tests', () => {
     expect(res.json).toHaveBeenCalledWith({
       message: 'User testuser created successfully',
     });
+    expect(clientMock.connect).toHaveBeenCalled();
+    expect(clientMock.db).toHaveBeenCalledWith('blog');
+    expect(databaseMock.collection).toHaveBeenCalledWith('users');
     expect(collectionMock.insertOne).toHaveBeenCalledWith({
       username: 'testuser',
       fullName: 'Test User',
@@ -100,9 +106,8 @@ describe('API Tests', () => {
     });
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
-        username: 'testuser',
+        name: 'testuser',
         fullName: 'Test User',
-        password: 'hashedPassword',
         email: 'test@example.com',
         image: 'https://example.com/image.jpg',
         posts: { create: [] },

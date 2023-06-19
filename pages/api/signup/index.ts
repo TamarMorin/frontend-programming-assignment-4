@@ -67,7 +67,11 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         // upload to mongodb
         try {
             await client.connect();
+            console.log("connection1");
+
             const database = client.db('blog');
+            console.log("blog");
+
             const collection = database.collection('users');
 
             console.log("connection");
