@@ -35,6 +35,7 @@ export const config = {
 
 // Handle any requests to /api/singup
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
+    console.log(req.body);
     if (req.method == 'POST') {
         const saltRounds = 10;
         const data = await new Promise((resolve, reject) => {
@@ -52,6 +53,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         const email = data?.fields?.email;
         const fullName = data?.fields?.fullName;
 
+        console.log(username);
+
         if (username === "" || password === "" || email === "" || fullName === "") {
             console.log(`Username or password or email or name is empty ${username} ${password}`);
             res.status(400).json({message: `Error signup user ${username}, username or password is empty`});
@@ -59,11 +62,20 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
 
         const passwordHash = await bcrypt.hash(password, saltRounds)
 
+        console.log(passwordHash);
+
         // upload to mongodb
         try {
             await client.connect();
+            console.log("connection1");
+
             const database = client.db('blog');
+            console.log("blog");
+
             const collection = database.collection('users');
+
+            console.log("connection");
+
 
             // check if user already exists
             const resultExist = await collection.findOne({username: username, email: email});
@@ -72,6 +84,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 return res.status(400).json({message: `Error signup user ${username}, user already exists`});
             }
 
+            console.log("resultexist");
+
             const result = await collection.insertOne({
                 username: username,
                 fullName: fullName,
@@ -79,6 +93,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
                 email: email,
                 image: image
             });
+
+            console.log("result");
 
             // check if result is successful
             if (result.insertedId == null) {
@@ -137,6 +153,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             return res.status(200).json({message: `User ${username} created successfully`});
 
         } catch (error) {
+            console.log("it failes here");
             return res.status(500).json({message: `Error signup user ${username}, ${error}`});
         }
 
