@@ -10,7 +10,6 @@ jest.mock('mongodb');
 jest.mock('cloudinary');
 jest.mock('formidable');
 jest.mock('bcrypt');
-jest.mock('../lib/prisma');
 
 describe('API Tests', () => {
   let req: Partial<NextApiRequest>;
@@ -31,6 +30,8 @@ describe('API Tests', () => {
       json: jest.fn(),
       status: jest.fn().mockReturnThis(),
     };
+    prisma.user.create = jest.fn();
+    prisma.user.findFirst = jest.fn();
 
     formParseMock = jest.fn().mockImplementation((req, callback) => {
       const fields = {
@@ -55,6 +56,9 @@ describe('API Tests', () => {
 
     // Mock the Prisma user.create function
     (prisma.user.create as jest.Mock).mockResolvedValue({ id: 1 });
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+
+    // Mock the Prisma post.create function
   });
 
   afterEach(() => {
@@ -96,8 +100,9 @@ describe('API Tests', () => {
     });
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
-        name: 'testuser',
+        username: 'testuser',
         fullName: 'Test User',
+        password: 'hashedPassword',
         email: 'test@example.com',
         image: 'https://example.com/image.jpg',
         posts: { create: [] },
