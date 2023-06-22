@@ -7,6 +7,7 @@ import {MongoClient, ServerApiVersion} from "mongodb";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pagination, {PaginationProps} from "../components/Pagination";
 import Cookies from "universal-cookie";
+
 const jwt = require("jsonwebtoken");
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -66,7 +67,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const result = await collection.findOne({
             prisma_id: feed[i].id,
         });
-        feed[i] = Object.assign({}, feed[i], {videoUrl: result?.url ?? null})
+
+        // find image url
+        const user = await prisma.user.findUnique({
+            where: {
+                id: feed[i].authorId ?? 0,
+            }
+        });
+
+        feed[i] = Object.assign({}, feed[i], {videoUrl: result?.url ?? null, profileImageUrl: user?.image})
     }
 
     return {

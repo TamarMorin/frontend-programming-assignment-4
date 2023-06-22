@@ -54,7 +54,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                 <h1>{props.username}</h1>
                 <h1>{props.email}</h1>
                 {props.image && (
-                    <Image src={props.image} alt="profile image" width={200} height={200} />
+                    <Image src={props.image} alt="profile image" width={200} height={200}/>
                 )}
             </div>
         </Layout>
