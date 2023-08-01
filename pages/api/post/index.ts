@@ -4,6 +4,8 @@ import {IncomingForm} from "formidable";
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
 import Cookies from "universal-cookie";
+import { csrf } from "../../../lib/csrf";
+
 
 const jwt = require('jsonwebtoken')
 
@@ -33,7 +35,7 @@ export const config = {
 // POST /api/post
 // Required fields in body: title
 // Optional fields in body: content
-export default async function handle(req: NextApiRequest, res: NextApiResponse) {
+async function handle(req: NextApiRequest, res: NextApiResponse) {
     let responseJsonObj = {};
     if (req.method === 'POST') {
 
@@ -101,3 +103,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         res.json(responseJsonObj);
     }
 }
+
+export default handle;
+// this line is unsecured
+//export default csrf(handle);
