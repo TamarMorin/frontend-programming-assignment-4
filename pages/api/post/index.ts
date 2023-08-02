@@ -104,6 +104,6 @@ async function handle(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-export default handle;
 // this line is unsecured
+export default handle;
 //export default csrf(handle);
