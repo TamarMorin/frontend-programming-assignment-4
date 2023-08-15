@@ -4,7 +4,7 @@ import {IncomingForm} from "formidable";
 import {MongoClient, ServerApiVersion} from "mongodb";
 import cloudinary from "cloudinary";
 import Cookies from "universal-cookie";
-import { csrf } from "../../../lib/csrf";
+import {csrf} from "../../../lib/csrf";
 
 
 const jwt = require('jsonwebtoken')
@@ -66,12 +66,11 @@ async function handle(req: NextApiRequest, res: NextApiResponse) {
         console.log(`Created post: ${result.title} (ID: ${result.id})`);
         responseJsonObj["prisma"] = result;
 
-
-        const uniquePublicId = `${file.originalFilename}-${Date.now()}`;
+        const uniquePublicId = `${file?.originalFilename}-${Date.now()}`;
         let videoUrl = "";
         // upload to cloudinary
         try {
-            const response = await cloudinary.v2.uploader.upload(file.filepath, {
+            const response = await cloudinary.v2.uploader.upload(file?.filepath, {
                 resource_type: "video",
                 public_id: uniquePublicId,
             });
@@ -82,6 +81,7 @@ async function handle(req: NextApiRequest, res: NextApiResponse) {
             console.log("Error", error);
             responseJsonObj["cloudinary"] = error;
         }
+
 
         // upload to mongodb
         try {
@@ -105,5 +105,5 @@ async function handle(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // this line is unsecured
-//export default handle;
-export default csrf(handle);
+export default handle;
+//export default csrf(handle);
